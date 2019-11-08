@@ -1,0 +1,58 @@
+	.text
+main:	la $t0,num1
+
+comp:	lw $t1,0($t0)
+	lw $t2,4($t0)
+	beqz $t2,done
+	ble $t1,$t2,next
+	
+	jal rev
+
+	j comp
+
+next:	addi $t0,$t0,4
+	j comp 
+
+done:	la $t0,num1
+	li $v0,1
+out:	lw $a0,0($t0)
+	syscall
+	beqz $a0,exit
+	la $a0,0x0A
+	li $v0,11
+	syscall
+	addi $t0,$t0,4
+	lw $t5,0($t0)
+	beqz $t5,exit
+	li $v0,1
+	j out
+
+exit:	li $v0,10
+	syscall
+
+rev:	sub $sp,$sp,4	# Decrement stack pointer
+	sw $ra,($sp)
+	sw $t1,4($t0)
+	sw $t2,0($t0)
+	beqz $t0,goback
+	
+	sub $t0,$t0,4
+	lw $t1,($t0)
+	lw $t2,4($t0)
+	ble $t1,$t2,goback
+
+	jal rev		# Store "goback" in $ra and put on stack after decrementing stack pointer first
+
+goback:	addi $t0,$t0,4	# Increment word address to get back to correct position
+	lw $ra,($sp)	# Pop the stack
+	addi $sp,$sp,4
+	jr $ra
+
+	.data
+num1:	.word 53875
+num2:	.word 36429
+num3:	.word 88641
+num4:	.word 95437
+num5:	.word 25153
+num6:	.word 42398
+num7:	.word 0
